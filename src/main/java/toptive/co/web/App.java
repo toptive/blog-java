@@ -1,13 +1,15 @@
 package toptive.co.web;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.post;
+import static spark.Spark.port;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
 import java.io.StringWriter;
 import java.util.Properties;
+import com.google.gson.Gson;
+import java.util.Map;
 
 public class App {
     public static void main(String[] args) {
@@ -24,28 +26,24 @@ public class App {
         // Seed the database with some data
         jdbi.useExtension(PostDao.class, dao -> {
             dao.insert("How to create a blog", "In this tutorial we are going to create a blog");
-            // Add other posts similarly
+            dao.insert("How to create a REST API", "In this tutorial we are going to create a REST API");
         });
 
-        // Configure Velocity
-        VelocityEngine velocityEngine = new VelocityEngine();
-        Properties props = new Properties();
-        props.put("file.resource.loader.path", "src/main/resources/templates");
-        velocityEngine.init(props);
-
-        // Define the route for the home page
         get("/", (req, res) -> {
-            var posts = jdbi.withExtension(PostDao.class, dao -> dao.listPosts());
-            return render(velocityEngine, posts, "index.vm");
+            res.type("application/json");
+            return new Gson().toJson(
+                new StandardResponse(StatusResponse.SUCCESS, new Gson()
+                    .toJsonTree(Map.of("hello","world", "faa", "boo"))
+            ));
         });
-    }
 
-    private static String render(VelocityEngine velocityEngine, Object model, String templatePath) {
-        Template template = velocityEngine.getTemplate(templatePath);
-        VelocityContext context = new VelocityContext();
-        context.put("posts", model);
-        StringWriter writer = new StringWriter();
-        template.merge(context, writer);
-        return writer.toString();
+        get("/posts", (req, res) -> {
+            var posts = jdbi.withExtension(PostDao.class, dao -> dao.listPosts());
+
+            res.type("application/json");
+            return new Gson().toJson(
+                new StandardResponse(StatusResponse.SUCCESS, new Gson()
+                    .toJsonTree(posts)));
+        });
     }
 }

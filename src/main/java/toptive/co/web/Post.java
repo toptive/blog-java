@@ -6,14 +6,14 @@ public class Post {
     private long id;
     private String title;
     private String content;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     // Default constructor
     public Post() {
     }
 
     // Constructor with all fields
-    public Post(long id, String title, String content, LocalDateTime createdAt) {
+    public Post(long id, String title, String content, String createdAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -24,7 +24,7 @@ public class Post {
     public Post(String title, String content) {
         this.title = title;
         this.content = content;
-        this.createdAt = LocalDateTime.now(); // Assuming creation time is now
+        this.createdAt = LocalDateTime.now().toString();
     }
 
     // Getters and setters
@@ -52,11 +52,11 @@ public class Post {
         this.content = content;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
